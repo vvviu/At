@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>X-RAY Platform - تشريح</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700;800&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--blue:#0A84FF;--green:#30D158;--red:#FF453A;--orange:#FF9F0A;--purple:#BF5AF2;
+--bg:#000;--glass:rgba(28,28,30,0.88);--border:rgba(255,255,255,0.09);
+--text:#fff;--muted:rgba(255,255,255,0.42);--shadow:0 20px 60px rgba(0,0,0,0.6);}
+[data-theme="light"]{--bg:#F2F2F7;--glass:rgba(255,255,255,0.85);--border:rgba(0,0,0,0.07);
+--text:#000;--muted:rgba(0,0,0,0.42);--shadow:0 12px 40px rgba(0,0,0,0.10);}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);background-image:radial-gradient(ellipse 80% 40% at 50% -8%,rgba(10,132,255,0.2),transparent),radial-gradient(ellipse 50% 30% at 85% 90%,rgba(48,209,88,0.06),transparent);
+color:var(--text);font-family:'IBM Plex Sans Arabic',sans-serif;min-height:100vh;
+display:flex;flex-direction:column;align-items:center;padding:12px 14px 100px;transition:background .4s,color .3s;}
+.g{background:var(--glass);backdrop-filter:blur(32px) saturate(200%);-webkit-backdrop-filter:blur(32px) saturate(200%);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);}
+
+.di{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:999;display:flex;align-items:center;gap:8px;
+background:#1c1c1e;border-radius:22px;padding:7px 16px;cursor:pointer;text-decoration:none;
+transition:all .3s;border:1px solid rgba(255,255,255,0.1);backdrop-filter:blur(20px);}
+.di:active{transform:translateX(-50%) scale(0.95);}
+.di svg{width:17px;height:17px;fill:#24A1DE;}
+.di span{font-weight:700;font-size:.78rem;color:#fff;white-space:nowrap;}
+
+.hdr{width:min(500px,100%);padding:12px 18px;display:flex;justify-content:space-between;align-items:center;margin:8px 0 14px;}
+.logo{font-family:'Space Mono',monospace;font-size:.86rem;font-weight:700;letter-spacing:2px;color:var(--blue);}
+.logo b{color:var(--text);}
+.sw{width:50px;height:28px;background:#3a3a3c;border-radius:14px;position:relative;cursor:pointer;transition:background .3s;}
+[data-theme="light"] .sw{background:#e5e5ea;}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;background:#fff;border-radius:50%;transition:transform .28s cubic-bezier(.4,0,.2,1);box-shadow:0 2px 6px rgba(0,0,0,.25);}
+[data-theme="light"] .sw::after{transform:translateX(22px);}
+
+.scr{width:min(500px,100%);display:none;}
+.scr.on{display:block;}
+.lbl{font-size:.62rem;font-weight:700;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin:18px 0 10px 4px;}
+
+/* GROUP CARDS */
+.gc{padding:18px 20px;margin-bottom:10px;display:flex;align-items:center;gap:14px;cursor:pointer;
+transition:transform .15s,box-shadow .2s,border-color .2s;border-radius:20px;position:relative;overflow:hidden;}
+.gc:active{transform:scale(0.98);}
+.gc-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;}
+.gc-body{flex:1;}
+.gc-title{font-size:1rem;font-weight:800;margin-bottom:3px;}
+.gc-sub{font-size:.72rem;color:var(--muted);}
+.gc-count{font-family:'Space Mono',monospace;font-size:.7rem;font-weight:700;padding:4px 10px;border-radius:20px;flex-shrink:0;}
+.gc-arrow{font-size:1.1rem;color:var(--muted);}
+
+/* ALL CARD */
+.all-card{padding:14px 20px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer;border-radius:20px;transition:transform .15s;}
+.all-card:active{transform:scale(0.98);}
+
+/* PROGRESS */
+.prog-wrap{padding:14px 18px;margin-bottom:10px;}
+.prog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
+.prog-name{font-size:.7rem;font-weight:700;letter-spacing:.5px;}
+.prog-num{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--muted);}
+.prog-bar{height:4px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:4px;transition:width .4s cubic-bezier(.4,0,.2,1);width:0;}
+
+/* QUIZ CARD */
+.qcard{padding:22px 20px;margin-bottom:10px;}
+.qnum{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);margin-bottom:10px;}
+.qtxt{font-size:.97rem;font-weight:700;line-height:1.7;margin-bottom:18px;}
+.opt{padding:13px 15px;border-radius:13px;background:rgba(255,255,255,.04);border:1.5px solid var(--border);
+cursor:pointer;margin-bottom:8px;display:flex;align-items:center;gap:12px;transition:all .2s;user-select:none;}
+.opt:active{transform:scale(0.99);}
+.opt.correct{background:rgba(48,209,88,.12)!important;border-color:var(--green)!important;}
+.opt.wrong{background:rgba(255,69,58,.1)!important;border-color:var(--red)!important;}
+.opt.disabled{cursor:default;pointer-events:none;}
+.opt-lbl{width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.07);border:1px solid var(--border);
+display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:.7rem;font-weight:700;flex-shrink:0;transition:all .2s;}
+.opt.correct .opt-lbl{background:var(--green);border-color:var(--green);color:#000;}
+.opt.wrong .opt-lbl{background:var(--red);border-color:var(--red);color:#fff;}
+.opt-txt{font-size:.88rem;line-height:1.5;}
+.next-btn{width:100%;padding:14px;border:none;border-radius:14px;font-family:'IBM Plex Sans Arabic',sans-serif;font-weight:700;font-size:.95rem;cursor:pointer;display:none;margin-top:4px;transition:transform .15s,opacity .2s;}
+.next-btn:active{transform:scale(0.98);}
+
+/* RESULT */
+.res-card{padding:30px 24px;text-align:center;}
+.res-emoji{font-size:3.5rem;margin-bottom:12px;}
+.res-score{font-family:'Space Mono',monospace;font-size:2.8rem;font-weight:700;line-height:1;}
+.res-total{font-size:.8rem;color:var(--muted);margin:6px 0 16px;}
+.res-msg{font-size:.9rem;line-height:1.6;margin-bottom:22px;}
+.res-bar-wrap{background:rgba(255,255,255,.06);border-radius:8px;height:8px;margin-bottom:24px;overflow:hidden;}
+.res-bar{height:100%;border-radius:8px;transition:width 1s cubic-bezier(.4,0,.2,1);}
+.res-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.res-btn{padding:13px;border:none;border-radius:13px;font-family:'IBM Plex Sans Arabic',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;transition:transform .15s;}
+.res-btn:active{transform:scale(0.97);}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.gc,.qcard,.prog-wrap,.res-card,.all-card{animation:fadeUp .3s ease both;}
+</style>
+</head>
+<body data-theme="dark">
+
+<a href="https://t.me/XrayB1" target="_blank" class="di">
+  <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+  <span>قناة X-RAY على التليجرام</span>
+</a>
+
+<div class="hdr g">
+  <div class="logo">X<b>-RAY</b> <span style="color:var(--muted);font-size:.68rem;letter-spacing:1px;">PLATFORM</span></div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <span style="font-size:.6rem;font-weight:700;color:var(--muted);letter-spacing:1px;">MODE</span>
+    <div class="sw" onclick="toggleMode()"></div>
+  </div>
+</div>
+
+<!-- HOME SCREEN -->
+<div id="s-home" class="scr on">
+  <div class="lbl">تشريح مدات التقنية — ٨٣ سؤال</div>
+
+  <div class="gc g" onclick="startGroup(0)" style="border-color:rgba(10,132,255,0.3);">
+    <div class="gc-icon" style="background:rgba(10,132,255,0.15);">🦴</div>
+    <div class="gc-body">
+      <div class="gc-title">المحاضرات ١ - ٥</div>
+      <div class="gc-sub">عظام الطرف العلوي • المفاصل الأساسية</div>
+    </div>
+    <div class="gc-count" style="background:rgba(10,132,255,0.15);color:var(--blue);">٣٠ سؤال</div>
+  </div>
+
+  <div class="gc g" onclick="startGroup(1)" style="border-color:rgba(48,209,88,0.3);">
+    <div class="gc-icon" style="background:rgba(48,209,88,0.12);">💪</div>
+    <div class="gc-body">
+      <div class="gc-title">المحاضرات ٦ - ٩</div>
+      <div class="gc-sub">العضلات • الأربطة • المستويات التشريحية</div>
+    </div>
+    <div class="gc-count" style="background:rgba(48,209,88,0.12);color:var(--green);">٢٧ سؤال</div>
+  </div>
+
+  <div class="gc g" onclick="startGroup(2)" style="border-color:rgba(255,159,10,0.3);">
+    <div class="gc-icon" style="background:rgba(255,159,10,0.12);">🔬</div>
+    <div class="gc-body">
+      <div class="gc-title">المحاضرات ١٠ - ١٥</div>
+      <div class="gc-sub">التصوير الشعاعي • الأوعية الدموية • عظام اليد</div>
+    </div>
+    <div class="gc-count" style="background:rgba(255,159,10,0.12);color:var(--orange);">٢٦ سؤال</div>
+  </div>
+
+  <div class="all-card g" onclick="startGroup(3)">
+    <div style="width:42px;height:42px;border-radius:12px;background:rgba(191,90,242,0.15);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">⚡</div>
+    <div>
+      <div style="font-weight:700;font-size:.93rem;">كل الأسئلة</div>
+      <div style="font-size:.7rem;color:var(--muted);">٨٣ سؤال — جميع المحاضرات</div>
+    </div>
+    <div style="margin-right:auto;padding:4px 10px;background:rgba(191,90,242,0.15);color:var(--purple);border-radius:20px;font-family:'Space Mono',monospace;font-size:.7rem;font-weight:700;">٨٣</div>
+  </div>
+</div>
+
+<!-- QUIZ SCREEN -->
+<div id="s-quiz" class="scr">
+  <div class="prog-wrap g">
+    <div class="prog-top">
+      <span class="prog-name" id="pg-name">—</span>
+      <span class="prog-num" id="pg-num">0/0</span>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" id="pg-fill" style="background:var(--blue);"></div></div>
+  </div>
+  <div class="qcard g">
+    <div class="qnum" id="q-num">سؤال ١</div>
+    <div class="qtxt" id="q-txt">—</div>
+    <div id="opts"></div>
+    <button class="next-btn" id="next-btn" onclick="nextQ()">السؤال التالي ←</button>
+  </div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div id="s-result" class="scr">
+  <div class="res-card g">
+    <div class="res-emoji" id="r-emoji">🎉</div>
+    <div class="res-score" id="r-score">0</div>
+    <div class="res-total" id="r-total">من 0 سؤال</div>
+    <div class="res-bar-wrap"><div class="res-bar" id="r-bar"></div></div>
+    <div class="res-msg" id="r-msg">—</div>
+    <div class="res-btns">
+      <button class="res-btn" onclick="retryGroup()" style="background:var(--blue);color:#fff;">🔄 إعادة المحاولة</button>
+      <button class="res-btn" onclick="goHome()" style="background:rgba(255,255,255,0.08);color:var(--text);">🏠 الرئيسية</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const LABELS = ["المحاضرات ١-٥","المحاضرات ٦-٩","المحاضرات ١٠-١٥","كل الأسئلة"];
+const COLORS = ["#0A84FF","#30D158","#FF9F0A","#BF5AF2"];
+
+/* ======================================================
+   QUESTIONS DATA — 83 QUESTIONS
+   ====================================================== */
+const G = [
+/* GROUP 0 — Lec 1-5 — Q1-Q30 */
+[
+{q:"Regarding the articulations of the clavicle, one is correct:",opts:["The medial end articulates with the manubrium by fibrous articulation","The medial end articulates with the manubrium by cartilaginous articulation","The medial end articulates with the body of the sternum by saddle synovial joint","The lateral end articulates with the acromion by fibrous articulation","The lateral end articulates with the acromion by synovial articulation"],ans:4},
+{q:"The glenoid cavity articulates with head of the humerus by a:",opts:["fibrous articulation","cartilaginous articulation","Synovial articulation","ball and socket synovial articulation","Hinge synovial articulation"],ans:3},
+{q:"Which of the following is the lateral bone of the antebrachium:",opts:["Ulna","Radius","Clavicle","Humerus","Scapula"],ans:1},
+{q:"Which of the following statements is TRUE about the scapula:",opts:["The clavicle connects to the scapula anteriorly near the midline of the human body","The medial border of the scapula connects directly to the neck of the scapula","The subscapular fossa is located on the anterior side of the scapula","The scapula articulates with the clavicle at the coracoid process of the scapula","The subscapular spine is located on the anterior side of the scapula"],ans:2},
+{q:"Which of the following statements is FALSE about the humerus:",opts:["The trochlea articulates with the ulna","The head of the humerus articulates with the ulna","The capitulum articulates with the radius","The medial epicondyle is the prominent bone landmark of the medial side of the elbow","a. and b. are false"],ans:1},
+{q:"The bicipital groove of the humerus lodges (contains) the:",opts:["Axillary artery","Long head of the biceps","Long head of the triceps","Coracobrachialis","None of the above"],ans:1},
+{q:"One of the following muscles is not a rotator cuff muscle:",opts:["Supraspinatus","Infraspinatus","Teres minor","Teres major","Subscapularis"],ans:3},
+{q:"Regarding the biceps brachii, one is INCORRECT:",opts:["Has long head attached to the supraglenoid tubercle","Has short head attached to the tip of the coracoid process","Has a tendon inserted into the radial tuberosity","It flexes the elbow joint","It is powerful supinator of the extended elbow"],ans:4},
+{q:"The constriction below the greater and lesser tuberosities of the humerus is called:",opts:["Anatomical neck","Surgical neck","Humeral shaft","Humeral ring","None of the above"],ans:1},
+{q:"The proximal row of the carpal bones consists of all of the following EXCEPT:",opts:["Scaphoid","Lunate","Trapezium","Pisiform","Triquetral"],ans:2},
+{q:"What is the type of the glenohumeral (shoulder) joint?",opts:["Hinge synovial joint","Pivot synovial joint","Ball-and-socket synovial joint","Saddle synovial joint","Condyloid synovial joint"],ans:2},
+{q:"Which of the following correctly describes the articular surfaces of the glenohumeral joint?",opts:["Head of radius and glenoid cavity","Head of humerus and coracoid process","Head of humerus and acromion","Head of humerus and glenoid cavity of scapula","Trochlea of humerus and olecranon of ulna"],ans:3},
+{q:"What is true about the joint capsule of the glenohumeral joint?",opts:["Thin and tight, limiting all movements","Loose fibrous capsule extending from glenoid rim to anatomical neck of humerus","Absent on the inferior aspect","Reinforced only by the coracoacromial ligament","Attached to the surgical neck of humerus"],ans:1},
+{q:"The synovial membrane of the glenohumeral joint:",opts:["Lines the outer surface of the capsule","Is absent from the labrum","Lines the inner surface of the capsule and attaches at margins of articular cartilages","Produces synovial fluid only after injury","Does not cover the long head of biceps tendon"],ans:2},
+{q:"The glenoid labrum is:",opts:["A bony projection deepening the glenoid cavity","A fibrocartilaginous rim attached to the glenoid cavity margin","A ligament connecting humerus to scapula","A bursa within the glenohumeral joint","A part of the rotator cuff"],ans:1},
+{q:"Which of the following is a ligament of the glenohumeral joint?",opts:["Coracoacromial ligament","Acromioclavicular ligament","Superior glenohumeral ligament","Ulnar collateral ligament","Annular ligament"],ans:2},
+{q:"Which ligament is NOT part of the sternoclavicular (SC) joint?",opts:["Anterior sternoclavicular ligament","Posterior sternoclavicular ligament","Interclavicular ligament","Costoclavicular ligament","Coracoclavicular ligament"],ans:4},
+{q:"The acromioclavicular (AC) joint is stabilized by:",opts:["Glenohumeral ligaments","Coracoclavicular ligament","Transverse humeral ligament","Radial collateral ligament","Patellar ligament"],ans:1},
+{q:"The scapular spine arises from the middle third of the anterior surface of the scapula and extends obliquely and medially to give rise to the acromion process.",opts:["True","False","The scapular spine arises from the posterior surface","The scapular spine arises from the lateral border","The scapular spine gives rise to the coracoid process"],ans:1},
+{q:"The scapular notch is located just lateral to the coracoid process on the superior margin of the scapula.",opts:["True","False","The scapular notch is medial to the coracoid process","The scapular notch is on the inferior margin","The scapular notch is posterior to the glenoid fossa"],ans:1},
+{q:"In AP views it is usually possible to rotate the scapulae off the lung fields.",opts:["True","False","Only possible in lateral views","Only possible in PA views","Scapulae cannot be rotated off lung fields"],ans:0},
+{q:"The glenoid fossa joins with the humeral head to create the:",opts:["Acromioclavicular joint","Sternoclavicular joint","Glenohumeral joint","Scapulothoracic joint","Coracoclavicular joint"],ans:2},
+{q:"Ossification center of the coracoid process appears about 12-18 months, and acromion appears about 14-20 years.",opts:["True","False (coracoid appears at birth)","False (acromion appears at 5-7 years)","False (both appear at 10 years)","False (coracoid appears at 14-20 years, acromion at 12-18 months)"],ans:0},
+{q:"At the distal end, the humerus articulates with which structures to form the elbow joint?",opts:["Head of radius and olecranon of ulna","Head of radius and trochlea of ulna","Capitulum of humerus and coronoid process","Radial notch and styloid process","Trochlear notch and radial head"],ans:1},
+{q:"There is a deep groove separating the two tubercles of the humerus, which is called the:",opts:["Radial groove","Intertubercular groove","Olecranon groove","Coronoid groove","Supracondylar groove"],ans:1},
+{q:"The trochlea of the humerus is a projection that is shaped like a pulley and located medially, extending onto the posterior aspect of the humerus.",opts:["True","False (it is located laterally)","False (it is called the capitulum)","False (it does not extend posteriorly)","False (it is a fossa, not a projection)"],ans:0},
+{q:"The greater tubercle is the most lateral part of the proximal end of the humerus.",opts:["True","False (the head is most lateral)","False (the lesser tubercle is most lateral)","False (the surgical neck is most lateral)","False (the anatomical neck is most lateral)"],ans:0},
+{q:"Medially, the head of the radius also articulates with the radial notch of the ulna, which forms the proximal radioulnar joint.",opts:["True","False (it forms the humeroradial joint)","False (it forms the distal radioulnar joint)","False (it articulates with the trochlea)","False (the radial notch is on the radius)"],ans:0},
+{q:"Ossification centers of the pisiform bone appear at 11 years.",opts:["True","False (appear at 5 years)","False (appear at 15 years)","False (appear at birth)","False (pisiform has no ossification center)"],ans:0},
+{q:"What are the articular surfaces of the radiocarpal joint?",opts:["Distal radius and scaphoid only","Distal ulna and lunate only","Distal radius, articular disc, scaphoid, lunate, triquetrum","Distal radius, pisiform, hamate","Articular disc, capitate, trapezoid"],ans:2}
+],
+
+/* GROUP 1 — Lec 6-9 — Q31-Q57 */
+[
+{q:"Origin of Flexor Pollicis Longus muscle:",opts:["Medial epicondyle of humerus","Anterior surface of radius (middle half) and interosseous membrane","Lateral epicondyle of humerus","Coracoid process of scapula","Posterior surface of ulna"],ans:1},
+{q:"Origin of Extensor Digitorum muscle:",opts:["Medial epicondyle of humerus","Lateral supracondylar ridge","Lateral epicondyle of humerus (common extensor origin)","Posterior border of ulna","Interosseous membrane"],ans:2},
+{q:"Origin of Extensor Carpi Ulnaris muscle:",opts:["Lateral epicondyle of humerus and posterior border of ulna","Medial epicondyle of humerus and anterior border of ulna","Lateral supracondylar ridge and radius","Olecranon process of ulna","Coracoid process and clavicle"],ans:0},
+{q:"Origin of Extensor Carpi Radialis Longus muscle:",opts:["Lateral epicondyle of humerus","Medial epicondyle of humerus","Lateral supracondylar ridge of humerus","Posterior surface of radius","Interosseous membrane and ulna"],ans:2},
+{q:"Regarding the statement: \"Primary muscles group that supports the shoulder joint is the biceps brachii muscles.\" Which is correct?",opts:["True","False; the deltoid muscle primarily supports the shoulder joint","False; the pectoralis major primarily supports the shoulder joint","False; the rotator cuff muscles (supraspinatus, infraspinatus, teres minor, subscapularis) primarily support the shoulder joint","False; the triceps brachii primarily supports the shoulder joint"],ans:3},
+{q:"Regarding the statement: \"Anterior deltoid muscle performs the actions of extension and external rotation of the humerus.\" Which is correct?",opts:["True","False; anterior deltoid performs flexion and internal rotation","False; anterior deltoid performs adduction and internal rotation","False; anterior deltoid performs extension and internal rotation","False; anterior deltoid performs flexion and external rotation"],ans:1},
+{q:"Regarding the statement: \"Rhomboid muscles overlie the shoulder superficially and functions to abduct the humerus bone.\" Which is correct?",opts:["True","False; rhomboid muscles lie deep to the trapezius and function to retract (adduct) the scapula, not abduct the humerus","False; rhomboid muscles are superficial and abduct the scapula","False; rhomboid muscles overlie the shoulder superficially and adduct the humerus","False; rhomboid muscles lie deep and abduct the humerus"],ans:1},
+{q:"Regarding the statement: \"Short head of the biceps brachii muscle originates from the suprasphenoid tubercle, passing through the intertubercular groove of the proximal humerus.\" Which is correct?",opts:["True","False; the short head originates from the coracoid process, and the long head originates from the supraglenoid tubercle and passes through the intertubercular groove","False; the short head originates from the supraglenoid tubercle","False; both heads originate from the coracoid process","False; the long head originates from the coracoid process"],ans:1},
+{q:"Regarding the statement: \"Radial collateral ligament which surrounds the head of the radius and rotates within it.\" Which is correct?",opts:["True","False; the annular ligament surrounds the head of the radius and allows rotation; the radial collateral ligament is on the lateral side of the elbow","False; the ulnar collateral ligament surrounds the head of the radius","False; the radial collateral ligament surrounds the head of the ulna","False; no ligament surrounds the head of the radius"],ans:1},
+{q:"Regarding the statement: \"Brachialis muscle have origin on anterior surface of distal humerus.\" Which is correct?",opts:["True","False; it originates from the lateral epicondyle","False; it originates from the medial epicondyle","False; it originates from the coracoid process","False; it originates from the posterior surface of the humerus"],ans:0},
+{q:"Regarding the statement: \"Radial collateral ligament runs from the ulnar styloid process to the triquetrum and pisiform.\" Which is correct?",opts:["True","False; the radial collateral ligament runs from the radial styloid to the scaphoid; the ulnar collateral ligament runs from the ulnar styloid to the triquetrum and pisiform","False; the radial collateral ligament runs from the radial styloid to the lunate","False; the radial collateral ligament runs from the ulnar styloid to the scaphoid","False; no ligament runs from the ulnar styloid"],ans:1},
+{q:"Regarding the statement: \"Carpometacarpal joint of the thumb between the trapezium and the metacarpal of the thumb is separate from the other carpometacarpal joints.\" Which is correct?",opts:["True","False; it is fused with the other CMC joints","False; it is between the trapezoid and the metacarpal","False; it is not separate","False; the thumb has no carpometacarpal joint"],ans:0},
+{q:"Regarding the statement: \"Capitulium is a projection that is shaped like a pulley and located medially, extending onto the posterior aspect of the humerus.\" Which is correct?",opts:["True","False; the trochlea is a pulley-shaped projection located medially; the capitulum is a rounded projection located laterally","False; the capitulum is pulley-shaped and lateral","False; the trochlea is rounded and lateral","False; the medial epicondyle is pulley-shaped"],ans:1},
+{q:"Regarding the statement: \"Glenoid of scapula bone ossified at 10-11 years.\" Which is correct?",opts:["True","False; it ossifies at birth","False; it ossifies at 5-6 years","False; it ossifies at 15-16 years","False; the glenoid never ossifies"],ans:0},
+{q:"Which of the following is found midway between the xiphisternal joint and the umbilicus, passing through the inferior border of the L1 vertebra?",opts:["Subcostal plane","Transtubercular plane","Transpyloric plane","Median plane","Midclavicular plane"],ans:2},
+{q:"Which is the main bursa of the shoulder and the largest bursa within the body?",opts:["Subscapular bursa","Olecranon bursa","Prepatellar bursa","Subacromial bursa (subdeltoid bursa)","Trochanteric bursa"],ans:3},
+{q:"The anterior surface of the scapula, which is flat and slightly concave, is called:",opts:["Supraspinous fossa","Infraspinous fossa","Subscapular fossa","Glenoid fossa","Coracoid fossa"],ans:2},
+{q:"Which beaklike process is located on the anterolateral surface of the scapula, arising just medial to the glenoid process?",opts:["Acromion process","Coracoid process","Spine of scapula","Supraglenoid tubercle","Infraglenoid tubercle"],ans:1},
+{q:"Which long, slender bone is located anteriorly and extends transversely from the sternum to the acromion process of the scapula?",opts:["Humerus","Radius","Ulna","Clavicle","First rib"],ans:3},
+{q:"Which part of the humerus is a narrowing below the articular surface of the head?",opts:["Surgical neck","Anatomical neck","Intertubercular groove","Deltoid tuberosity","Radial groove"],ans:1},
+{q:"Which joint is located between the scaphoid, lunate and triquetrum proximally and the trapezium, trapezoid, capitate and hamate distally?",opts:["Radiocarpal joint","Midcarpal joint","Intercarpal joint","Carpometacarpal joint","Intermetacarpal joint"],ans:1},
+{q:"The acromial end of the clavicle articulates with the acromion process of the scapula to form which joint?",opts:["Sternoclavicular joint","Glenohumeral joint","Acromioclavicular joint","Coracoclavicular joint","Coracoacromial joint"],ans:2},
+{q:"Which plane passes through the tubercles on the iliac crests at the level of the L5 vertebral body?",opts:["Transpyloric plane","Subcostal plane","Transtubercular plane","Midinguinal plane","Supracristal plane"],ans:2},
+{q:"The lamina papyracea is part of which orbital wall?",opts:["Lateral wall","Superior wall","Medial wall","Inferior wall","Superior & lateral walls"],ans:2},
+{q:"The cribriform plate of the ethmoid bone primarily functions to:",opts:["Support the nasal conchae","Form the lateral walls of the nasal cavity","Transmit olfactory nerves from the nasal cavity to the cranial cavity","Separate the middle cranial fossa from the nasal cavity","Separate the posterior cranial fossa from the nasal cavity"],ans:2},
+{q:"Which process of the maxilla extends laterally to articulate with the zygomatic bone?",opts:["Frontal process","Alveolar process","Palatine process","Zygomatic process","Sphenoid process"],ans:3},
+{q:"How many branches arise from the axillary artery?",opts:["Four","Six","Eight","Nine","Ten"],ans:1}
+],
+
+/* GROUP 2 — Lec 10-15 — Q58-Q83 */
+[
+{q:"The brachial veins ultimately drain into which vein?",opts:["Jugular vein","Subclavian vein","Cephalic vein","Ulnar vein","Axillary vein"],ans:4},
+{q:"The palatine process of the maxilla articulates with which of the following?",opts:["Horizontal plate of the palatine bone","Vomer bone","Inferior nasal concha","Perpendicular plate of the ethmoid bone","Middle nasal concha"],ans:0},
+{q:"The floor of the nasal cavity is formed by which structures?",opts:["Ethmoid bone and lacrimal bone","Nasal conchae and vomer","Frontal bone and sphenoid bone","Vomer and maxilla bone","Palatine process of the maxilla and palatine bone"],ans:4},
+{q:"Which two branches of the axillary artery encircle the humerus?",opts:["Superior thoracic and lateral thoracic arteries","Anterior and posterior circumflex humeral arteries","Thoracoacromial and subscapular arteries","Lateral thoracic and subscapular arteries","Posterior circumflex humeral artery only"],ans:1},
+{q:"Absence of both frontal sinuses may be associated with which of the following?",opts:["Failure of sphenoid pneumatization","Delayed eruption of permanent dentition","Persistence of the metopic suture","Sphenoid pneumatization","Underdevelopment of the alveolar process"],ans:2},
+{q:"Which process of the scapula forms part of the shoulder joint?",opts:["Spine","Coracoid process","Glenoid process","Acromion","Body"],ans:2},
+{q:"The olecranon fossa of the humerus is found:",opts:["Above the capitellum","Above the trochlea, posteriorly","Below the medial epicondyle","On the anterior surface of the humerus","Below the lateral epicondyle"],ans:1},
+{q:"Which structure of the humerus articulates with the radial head?",opts:["Trochlea","Olecranon fossa","Coronoid fossa","Capitellum","Radial fossa"],ans:3},
+{q:"The ossification center for the capitellum appears at:",opts:["Birth","1 year","5 years","10 years","11 years"],ans:1},
+{q:"The styloid process of the radius is located on which part of the bone?",opts:["Proximal end, lateral side","Distal end, lateral side","Distal end, medial side","Proximal end, medial side","Distal end, posterior side"],ans:1},
+{q:"The coronoid process of the ulna is located:",opts:["Anterior to the distal humerus at the proximal end of the ulna","On the lateral surface of the trochlear notch","Posterior to the distal humerus","At the distal end of the ulna","At the shaft of the ulna"],ans:0},
+{q:"Which radiographic sign suggests a fracture of the radial head?",opts:["Single cortical line on the upper surface","Angulation of the head or double cortical line","Perpendicular alignment of head and neck","Smooth cortical outline","None of the above"],ans:1},
+{q:"The lunate bone articulates directly with which forearm bone?",opts:["Radius","Ulna","Both radius and ulna","Distal end of ulna","None of the above"],ans:0},
+{q:"Which carpal bone is pyramid-shaped and has a facet for articulation with the pisiform?",opts:["Scaphoid","Hamate","Triquetrum","Trapezoid","Trapezium"],ans:2},
+{q:"How many metacarpal bones are present in the human hand?",opts:["4","5","6","7","8"],ans:1},
+{q:"The metacarpal bones are classified as which type of bone?",opts:["Short bones","Flat bones","Long bones","Irregular bones","Sesamoid bones"],ans:2},
+{q:"Which finger has only two phalanges instead of three?",opts:["Thumb","Second finger","Third finger","Fourth finger","Fifth finger"],ans:0},
+{q:"Which imaging modality is most commonly used for bone age assessment?",opts:["CT scan","MRI","X-ray","Ultrasound","MRI and CT scan"],ans:2},
+{q:"In normal hands, the metacarpal sign is characterized by:",opts:["Tangential line crossing the third metacarpal head in 90% of cases","Tangential line not crossing the third metacarpal head in 90% of cases","Tangential line always crossing the second metacarpal head","Tangential line crossing all metacarpal heads equally","None of the above"],ans:1},
+{q:"The joint capsule of the shoulder extends from:",opts:["The coracoid process to the greater tubercle","The acromion to the clavicle","The margin of the glenoid fossa to the anatomical neck of the humerus","The surgical neck to the scapular spine","None of the above"],ans:2},
+{q:"Which imaging modality is increasingly used as an alternative to MRI for evaluating rotator cuff?",opts:["CT","High-frequency linear ultrasound probe","X-ray","PET scan","All the above"],ans:1},
+{q:"In full flexion of the elbow joint, which structure is received by the coronoid fossa of the humerus?",opts:["Olecranon process","Radial head","Trochlea","Coronoid process","None of the above"],ans:3},
+{q:"Which radiographic views are commonly used to assess normal alignment of wrist & hand joints?",opts:["PA, lateral and oblique","AP, lateral and axial","Only AP","Only lateral","Only PA"],ans:0},
+{q:"The axillary artery is a continuation of which artery?",opts:["Brachial artery","Radial artery","Ulnar artery","Subclavian artery","None of the above"],ans:3},
+{q:"The paired veins that drain the ARM are called:",opts:["Radial veins","Ulnar veins","Brachial veins","Axillary veins","Brachiocephalic veins"],ans:2},
+{q:"Articular surfaces of wrist joint are the distal radius and distal surface of the triangular cartilage and the proximal surfaces of which bones?",opts:["Trapezoid and trapezium","Capitate and hamate","Lunate and triquetral","Scaphoid, lunate and triquetral","None of the above"],ans:3}
+]
+];
+
+/* ======================================================
+   STATE
+   ====================================================== */
+let activeGroup = [];
+let activeGroupIdx = 0;
+let qIdx = 0;
+let score = 0;
+let answered = false;
+
+const LETTERS = ['A','B','C','D','E'];
+
+function toggleMode(){
+  const b = document.body;
+  b.setAttribute('data-theme', b.getAttribute('data-theme')==='dark'?'light':'dark');
+}
+
+function startGroup(idx){
+  activeGroupIdx = idx;
+  activeGroup = idx === 3 ? [].concat(G[0], G[1], G[2]) : G[idx];
+  qIdx = 0; score = 0;
+  show('s-quiz');
+  const col = COLORS[idx];
+  document.getElementById('pg-fill').style.background = col;
+  document.getElementById('next-btn').style.background = col;
+  document.getElementById('next-btn').style.color = '#fff';
+  renderQ();
+}
+
+function renderQ(){
+  const q = activeGroup[qIdx];
+  const total = activeGroup.length;
+  const pct = (qIdx / total) * 100;
+
+  document.getElementById('pg-name').textContent = LABELS[activeGroupIdx];
+  document.getElementById('pg-name').style.color = COLORS[activeGroupIdx];
+  document.getElementById('pg-num').textContent = `${qIdx+1}/${total}`;
+  document.getElementById('pg-fill').style.width = pct + '%';
+  document.getElementById('q-num').textContent = `سؤال ${qIdx+1}`;
+  document.getElementById('q-txt').textContent = q.q;
+
+  const wrap = document.getElementById('opts');
+  wrap.innerHTML = '';
+  q.opts.forEach((o, i) => {
+    const d = document.createElement('div');
+    d.className = 'opt';
+    d.innerHTML = `<div class="opt-lbl">${LETTERS[i]}</div><div class="opt-txt">${o}</div>`;
+    d.onclick = () => selectOpt(i);
+    wrap.appendChild(d);
+  });
+
+  document.getElementById('next-btn').style.display = 'none';
+  answered = false;
+}
+
+function selectOpt(chosen){
+  if(answered) return;
+  answered = true;
+  const q = activeGroup[qIdx];
+  const opts = document.querySelectorAll('.opt');
+
+  opts.forEach((el, i) => {
+    el.classList.add('disabled');
+    if(i === q.ans) el.classList.add('correct');
+    else if(i === chosen && chosen !== q.ans) el.classList.add('wrong');
+  });
+
+  if(chosen === q.ans) score++;
+
+  const nb = document.getElementById('next-btn');
+  nb.style.display = 'block';
+  nb.textContent = qIdx < activeGroup.length - 1 ? 'السؤال التالي ←' : 'عرض النتيجة 🏁';
+}
+
+function nextQ(){
+  qIdx++;
+  if(qIdx >= activeGroup.length){ showResult(); return; }
+  renderQ();
+}
+
+function showResult(){
+  show('s-result');
+  const total = activeGroup.length;
+  const pct = Math.round((score / total) * 100);
+  let emoji, msg, barColor;
+
+  if(pct >= 90){ emoji='🏆'; msg='ممتاز جداً! أداء احترافي.'; barColor='#30D158'; }
+  else if(pct >= 75){ emoji='🎉'; msg='جيد جداً! استمر في المذاكرة.'; barColor='#0A84FF'; }
+  else if(pct >= 60){ emoji='📚'; msg='جيد، لكن راجع الأسئلة الخاطئة.'; barColor='#FF9F0A'; }
+  else{ emoji='💪'; msg='تحتاج مراجعة أكثر. لا تستسلم!'; barColor='#FF453A'; }
+
+  document.getElementById('r-emoji').textContent = emoji;
+  document.getElementById('r-score').textContent = score;
+  document.getElementById('r-total').textContent = `من ${total} سؤال  (${pct}%)`;
+  document.getElementById('r-msg').textContent = msg;
+
+  const bar = document.getElementById('r-bar');
+  bar.style.background = barColor;
+  bar.style.width = '0%';
+  setTimeout(() => { bar.style.width = pct + '%'; }, 100);
+}
+
+function retryGroup(){ startGroup(activeGroupIdx); }
+function goHome(){ show('s-home'); }
+
+function show(id){
+  document.querySelectorAll('.scr').forEach(s => s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
